@@ -3,6 +3,7 @@ package com.example.worker;
 
 import com.example.common_libs.feigns.ParticipantFeign;
 import com.example.common_libs.model.Participant;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.task.ExternalTask;
 import org.camunda.bpm.client.task.ExternalTaskHandler;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @Component
 @ExternalTaskSubscription(topicName="check-topic")
+@Slf4j
 public class GetResult implements ExternalTaskHandler {
 
     @Autowired()
@@ -25,8 +27,7 @@ public class GetResult implements ExternalTaskHandler {
 
         String myName = externalTask.getVariable("myParticipant");
         Participant myParticipant = participantFeign.getByName(myName).get(0);
-
-        myParticipant = participantFeign.getByName(myParticipant.getName()).get(0);
+        log.info("my score: " + myParticipant.getLASTScore());
 
         boolean isPass = false;
         if(myParticipant.getLASTScore() > 30){

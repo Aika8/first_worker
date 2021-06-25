@@ -2,6 +2,7 @@ package com.example.worker;
 
 import com.example.common_libs.feigns.ParticipantFeign;
 import com.example.common_libs.model.Participant;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.task.ExternalTask;
 import org.camunda.bpm.client.task.ExternalTaskHandler;
@@ -14,6 +15,7 @@ import java.util.Random;
 
 @Component
 @ExternalTaskSubscription(topicName="grade-topic")
+@Slf4j
 public class Grade implements ExternalTaskHandler {
 
     @Autowired()
@@ -30,6 +32,7 @@ public class Grade implements ExternalTaskHandler {
         participant.setLASTScore(score);
 
         participantFeign.save(participant);
+        log.info("participant: " + name + "graded: " + participant);
 
         externalTaskService.complete(externalTask);
 

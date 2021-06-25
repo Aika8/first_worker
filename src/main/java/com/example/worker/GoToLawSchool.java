@@ -8,9 +8,8 @@ import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.task.ExternalTask;
 import org.camunda.bpm.client.task.ExternalTaskHandler;
 import org.camunda.bpm.client.task.ExternalTaskService;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.spin.Spin;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.spin.json.SpinJsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,12 +18,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @Component
-@ExternalTaskSubscription(topicName="perform-topic")
+@ExternalTaskSubscription(topicName = "perform-topic")
+@Slf4j
 public class GoToLawSchool implements ExternalTaskHandler {
-
 
 
     @Autowired()
@@ -33,40 +31,41 @@ public class GoToLawSchool implements ExternalTaskHandler {
 
     @Override
     public void execute(ExternalTask externalTask, ExternalTaskService externalTaskService) {
-        String name = externalTask.getVariable("name");
-        int age =  externalTask.getVariable("age");
+
+            String name = externalTask.getVariable("name");
+            int age = externalTask.getVariable("age");
 
 
         if (!(age < 50 && age > 18)) {
-            externalTaskService.handleBpmnError(externalTask, "age limit!");
+            externalTaskService.handleBpmnError(externalTask, "age_limit");
+            externalTaskService.complete(externalTask);
         }
 
+        log.info("name :" + name + ",age :" + age);
 
         Participant myParticipant = new Participant();
         myParticipant.setName(name);
         myParticipant.setAge(age);
         myParticipant = participantFeign.save(myParticipant);
+        log.info("participant saved: " + myParticipant);
 
-        List<Document>documents = new ArrayList<>();
         Document document = new Document();
         document.setHarvardDoc("harvard doc");
         document.setColumbiaDoc("columbia doc");
         document.setParticipant(myParticipant);
-        documents.add(document);
-
         participantFeign.saveDoc(document);
+        log.info("document saved: " + document);
 
+        List<String> participants = new ArrayList<>();
 
-        List<String>participants = new ArrayList<>();
-
-        for(Participant p : participantFeign.get()){
+        for (Participant p : participantFeign.get()) {
             participants.add(p.getName());
         }
 
         List<String> pList = new ArrayList<>();
         SpinJsonNode spinJsonNode = Spin.JSON(participants);
-        spinJsonNode.elements().forEach(elem ->{
-                pList.add(elem.stringValue());
+        spinJsonNode.elements().forEach(elem -> {
+            pList.add(elem.stringValue());
         });
 
 

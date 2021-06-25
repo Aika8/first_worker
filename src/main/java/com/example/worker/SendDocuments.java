@@ -3,6 +3,7 @@ package com.example.worker;
 import com.example.common_libs.feigns.ParticipantFeign;
 import com.example.common_libs.model.Document;
 import com.example.common_libs.model.Participant;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.task.ExternalTask;
 import org.camunda.bpm.client.task.ExternalTaskHandler;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 
 @Component
 @ExternalTaskSubscription(topicName="doc-topic")
+@Slf4j
 public class SendDocuments implements ExternalTaskHandler {
 
     @Autowired()
@@ -50,6 +52,7 @@ public class SendDocuments implements ExternalTaskHandler {
             uniName = "Columbia";
         }
 
+        log.info("Chosen University: " + uniName);
 
         List<String> jsonDocs = new ArrayList<>();
         SpinJsonNode spinJsonNode = Spin.JSON(docs);
