@@ -38,7 +38,7 @@ public class GoToLawSchool implements ExternalTaskHandler {
 
         if (!(age < 50 && age > 18)) {
             externalTaskService.handleBpmnError(externalTask, "age_limit");
-            externalTaskService.complete(externalTask);
+            return;
         }
 
         log.info("name :" + name + ",age :" + age);

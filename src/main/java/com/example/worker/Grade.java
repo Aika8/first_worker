@@ -32,7 +32,7 @@ public class Grade implements ExternalTaskHandler {
         participant.setLASTScore(score);
 
         participantFeign.save(participant);
-        log.info("participant: " + name + "graded: " + participant);
+        log.info("participant: " + name + " | graded: " + participant);
 
         externalTaskService.complete(externalTask);
 
